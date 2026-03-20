@@ -60,4 +60,9 @@ public class EmployeeController {
     public EmployeeDTO saveNewEmployeeEntity(@RequestBody EmployeeDTO inputEmployee){
         return employeeService.saveNewEmployeeEntity(inputEmployee);
     }
+
+    @PutMapping(path = "/{employeeId}")
+    public EmployeeDTO updateEmployeeById(@PathVariable Long employeeId, @RequestBody EmployeeDTO employeeDTO){
+        return employeeService.updateEmployeeById(employeeId, employeeDTO);
+    }
 }
