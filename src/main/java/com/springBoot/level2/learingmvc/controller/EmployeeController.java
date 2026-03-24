@@ -4,10 +4,13 @@ package com.springBoot.level2.learingmvc.controller;
 import com.springBoot.level2.learingmvc.dto.EmployeeDTO;
 import com.springBoot.level2.learingmvc.entities.EmployeeEntity;
 import com.springBoot.level2.learingmvc.services.EmployeeService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/employee")
@@ -47,33 +50,46 @@ public class EmployeeController {
 //    }
 
     @GetMapping(path = "/{employeeId}")
-    public EmployeeDTO getEmployeeId(@PathVariable(name = "employeeId") Long id){
-        return employeeService.getEmployeeId(id);
+    public ResponseEntity<EmployeeDTO> getEmployeeId(@PathVariable(name = "employeeId") Long id){
+        Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeId(id);
+//        if(employeeDTO == null) return ResponseEntity.notFound().build();
+//        return ResponseEntity.ok(employeeDTO); // Not using this line because here we are using Optional EmployeeDTO
+        return employeeDTO.map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1)).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public List<EmployeeDTO> getAllEmployeeById(@RequestParam(required = false) Integer age,
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployeeById(@RequestParam(required = false) Integer age,
                                      @RequestParam(required = false) String sortBy){
-        return employeeService.getAllEmployeeById();
+//        return employeeService.getAllEmployeeById(); // -> Here also we added Response Entity so we had to make changes in the body.
+        return ResponseEntity.ok(employeeService.getAllEmployeeById());
     }
 
     @PostMapping
-    public EmployeeDTO saveNewEmployeeEntity(@RequestBody EmployeeDTO inputEmployee){
-        return employeeService.saveNewEmployeeEntity(inputEmployee);
+    public ResponseEntity<EmployeeDTO> saveNewEmployeeEntity(@RequestBody EmployeeDTO inputEmployee){
+//        return employeeService.saveNewEmployeeEntity(inputEmployee); -> After adding Response Entity here we need to change
+        EmployeeDTO savedNewEmployee = employeeService.saveNewEmployeeEntity(inputEmployee);
+        return new ResponseEntity<>(savedNewEmployee, HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{employeeId}")
-    public EmployeeDTO updateEmployeeById(@PathVariable Long employeeId, @RequestBody EmployeeDTO employeeDTO){
-        return employeeService.updateEmployeeById(employeeId, employeeDTO);
+    public ResponseEntity<EmployeeDTO> updateEmployeeById(@PathVariable Long employeeId, @RequestBody EmployeeDTO employeeDTO){
+        return ResponseEntity.ok(employeeService.updateEmployeeById(employeeId, employeeDTO));
     }
 
     @DeleteMapping(path = "/{employeeId}")
-    public boolean deleteEmployeeById(@PathVariable Long employeeId){
-        return employeeService.deleteEmployeeById( employeeId);
+    public ResponseEntity<Boolean> deleteEmployeeById(@PathVariable Long employeeId){
+//        return employeeService.deleteEmployeeById( employeeId);
+        boolean gotDeleted = employeeService.deleteEmployeeById( employeeId);
+        if(gotDeleted) return ResponseEntity.ok(true);
+        return ResponseEntity.notFound().build();
     }
 
     @PatchMapping(path = "/{employeeId}")
-    public EmployeeDTO updatePartialEmployeeById(@PathVariable Long employeeId, @RequestBody Map<String,Object> updates){
-        return employeeService.updatePartialEmployeeById(employeeId, updates);
+    public ResponseEntity<EmployeeDTO> updatePartialEmployeeById(@PathVariable Long employeeId, @RequestBody Map<String,Object> updates){
+//        return employeeService.updatePartialEmployeeById(employeeId, updates);
+        EmployeeDTO employeeDTO = employeeService.updatePartialEmployeeById(employeeId, updates);
+        if(employeeDTO == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(employeeDTO);
     }
+
 }

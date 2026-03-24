@@ -10,6 +10,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -38,10 +39,11 @@ public class EmployeeService {
 //
 //    }
 
-        public EmployeeDTO getEmployeeId(Long id) {
-            EmployeeEntity employeeEntity = employeeRepository.findById(id).orElse(null);
+        public Optional<EmployeeDTO> getEmployeeId(Long id) {
+            Optional<EmployeeEntity> employeeEntity = employeeRepository.findById(id);
 //            ModelMapper modelMapper = new ModelMapper();
-            return modelMapper.map(employeeEntity,EmployeeDTO.class);
+//            return modelMapper.map(employeeEntity,EmployeeDTO.class);
+            return employeeEntity.map(employeeEntity1 -> modelMapper.map(employeeEntity1,EmployeeDTO.class));
         }
 
 
@@ -71,7 +73,7 @@ public class EmployeeService {
 
     }
 
-    public boolean deleteEmployeeById(Long employeeId) {
+    public Boolean deleteEmployeeById(Long employeeId) {
 //            boolean exists = employeeRepository.existsById(employeeId);
         boolean exists = isExistsById(employeeId);
             if(!exists){
